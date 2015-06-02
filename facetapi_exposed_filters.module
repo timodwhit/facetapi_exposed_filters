@@ -1,0 +1,105 @@
+<?php
+/**
+ * @file
+ * Module file for FacetAPI Exposed Filters.
+ */
+
+/**
+ * Implements hook_views_api().
+ */
+function facetapi_exposed_filters_views_api($module = NULL, $api = NULL) {
+  return array("api" => "3.0");
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function facetapi_exposed_filters_form_views_exposed_form_alter(&$form, $form_state, $form_id) {
+  // See: https://www.drupal.org/sandbox/pl2/1438442
+  foreach ($form_state['input'] as $input_key => $value) {
+    // If there is an argument in input that is not in the keys of the form
+    // then that argument must be added as a hidden field to the form.
+    if (!isset($form[$input_key])) {
+      _facetapi_exposed_filters_param_from_array($form, $input_key, $input_key, $value);
+    }
+  }
+}
+
+/**
+ * From: https://www.drupal.org/sandbox/pl2/1438442
+ *
+ * Converts an array that was previously parsed from the url arguments
+ * to an array of hidden values that will be added to the form so these arguments
+ * are not lost in form submission.
+ */
+function _facetapi_exposed_filters_param_from_array(&$form, $root_key, $key, $value, $array_key = '') {
+  if (!is_array($value)) {
+    $form[$key] = array(
+      '#type' => 'hidden',
+      '#value' => $value,
+      '#name' => "$root_key$array_key",
+    );
+  }
+  else {
+    $form[$key] = array();
+    foreach ($value as $val_key => $val_value) {
+      _facetapi_exposed_filters_param_from_array($form[$key], $root_key, $val_key, $val_value, $array_key . "[$val_key]");
+    }
+  }
+}
+
+/**
+ * Implements template_preprocess_views_view().
+ */
+function facetapi_exposed_filters_preprocess_views_view(&$vars) {
+  $view = $vars['view'];
+  if (is_array($vars['exposed']) && !empty($vars['exposed']['#facet_filters'])) {
+    facetapi_exposed_filters_view_preprocess_filters($vars);
+    $vars['exposed'] = drupal_render($vars['exposed']);
+  }
+}
+
+/**
+ * Implements template_process_eva_display_entity_view().
+ */
+function facetapi_exposed_filters_process_eva_display_entity_view(&$vars) {
+  $view = $vars['view'];
+  if (is_array($vars['exposed']) && !empty($vars['exposed']['#facet_filters'])) {
+    facetapi_exposed_filters_view_preprocess_filters($vars);
+    $vars['exposed'] = drupal_render($vars['exposed']);
+  }
+}
+
+/**
+ * Preprocesses the filters and adds them to the exposed form.
+ */
+function facetapi_exposed_filters_view_preprocess_filters(&$vars) {
+  $view = $vars['view'];
+  // Add Filters.
+  $filter_list = $vars['exposed']['#facet_filters']['#ids'];
+  $block_render = facetapi_exposed_filters_view_filter_blocks($filter_list);
+  foreach ($block_render as $facet_id => $block) {
+    $id = 'facet_filter_' . $facet_id;
+    // Render the blocks in the form
+    $vars['exposed'][$id] = array();
+    $vars['exposed'][$id] += $block['content'];
+    // Pass information to the #info for use in template_views_
+    $vars['exposed']['#info'][$id]['label'] = $block['content']['#facet']['label'];
+  }
+}
+
+/**
+ * Custom function to load fliter blocks into a view
+ */
+function facetapi_exposed_filters_view_filter_blocks($facets) {
+  $block_render = array();
+  foreach ($facets as $block) {
+    $block_load = module_invoke('facetapi', 'block_view', $block);
+    if (!empty($block_load)) {
+      $block_load['#prefix'] = '<div class="facetapi-exposed-filters--filter">';
+      $block_load['#suffix'] = '</div>';
+      $block_render[$block] = $block_load;
+    }
+  }
+  return $block_render;
+}

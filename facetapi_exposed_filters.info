@@ -1,0 +1,6 @@
+name = FacetAPI Exposed Filter
+description = Module that gives you facet blocks as an option to the exposed filters
+core = 7.x
+
+dependencies[] = facetapi
+files[] = plugins/facetapi_exposed_filters_plugin_exposed_form.inc
