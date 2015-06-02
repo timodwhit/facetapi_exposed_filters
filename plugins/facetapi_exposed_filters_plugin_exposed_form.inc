@@ -10,6 +10,13 @@ class facetapi_exposed_filters_plugin_exposed_form extends views_plugin_exposed_
     return t('Settings');
   }
 
+  function option_definition() {
+    $options = parent::option_definition();
+    $options['facetapi_exposed_filters_facets'] = array('default' => array());
+    $options['facetapi_exposed_filters_render'] = array('default' => FALSE, 'bool' => FALSE);
+    return $options;
+  }
+
   /**
    * Set the options on the form, and include the facets.
    */
