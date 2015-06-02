@@ -75,13 +75,20 @@ function facetapi_exposed_filters_view_preprocess_filters(&$vars) {
   // Add Filters.
   $filter_list = $vars['exposed']['#facet_filters']['#ids'];
   $block_render = facetapi_exposed_filters_view_filter_blocks($filter_list);
-  foreach ($block_render as $facet_id => $block) {
+  foreach ($filter_list as $facet_id) {
     $id = 'facet_filter_' . $facet_id;
-    // Render the blocks in the form
-    $vars['exposed'][$id] = array();
-    $vars['exposed'][$id] += $block['content'];
-    // Pass information to the #info for use in template_views_
-    $vars['exposed']['#info'][$id]['label'] = $block['content']['#facet']['label'];
+    if (in_array($facet_id, array_keys($block_render))) {
+      // Render the blocks in the form
+      $vars['exposed'][$id] = array();
+      $vars['exposed'][$id] += $block_render[$facet_id]['content'];
+      $vars['exposed'][$id]['#id'] = 'edit-' . $id;
+      // Pass information to the #info for use in template_views_
+      $vars['exposed']['#info'][$id]['label'] = $block_render[$facet_id]['content']['#facet']['label'];
+    }
+    else {
+      unset($vars['exposed'][$id]);
+      unset($vars['exposed']['#info'][$id]);
+    }
   }
 }
 

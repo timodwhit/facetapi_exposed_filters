@@ -1,7 +1,10 @@
 INTRODUCTION
 ------------
 FacetAPI Exposed filters is a module meant to help bridge the gap between views
-exposed filters and
+exposed filters and FacetAPI Blocks. The goal of the module is to provide a simple
+way to acheive the FacetAPI Blocks in the exposed form widgets. This happens by
+altering the rendering process of the Exposed form to happen after the view is
+fully process so that the Facet Blocks are aware of the search.
 
 
 REQUIREMENTS
