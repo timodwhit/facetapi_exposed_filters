@@ -37,7 +37,6 @@ class facetapi_exposed_filters_plugin_exposed_form extends views_plugin_exposed_
 
   function exposed_form_alter(&$form, &$form_state) {
     parent::exposed_form_alter($form, $form_state);
-    global $language;
     if (!empty($this->options['facetapi_exposed_filters_facets'])) {
       // Grab the list of exposed filters and add them as filters.
       $form['#facet_filters'] = array(

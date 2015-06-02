@@ -52,7 +52,6 @@ function _facetapi_exposed_filters_param_from_array(&$form, $root_key, $key, $va
  * Implements template_preprocess_views_view().
  */
 function facetapi_exposed_filters_preprocess_views_view(&$vars) {
-  $view = $vars['view'];
   if (is_array($vars['exposed']) && !empty($vars['exposed']['#facet_filters'])) {
     facetapi_exposed_filters_view_preprocess_filters($vars);
     $vars['exposed'] = drupal_render($vars['exposed']);
@@ -63,7 +62,6 @@ function facetapi_exposed_filters_preprocess_views_view(&$vars) {
  * Implements template_process_eva_display_entity_view().
  */
 function facetapi_exposed_filters_process_eva_display_entity_view(&$vars) {
-  $view = $vars['view'];
   if (is_array($vars['exposed']) && !empty($vars['exposed']['#facet_filters'])) {
     facetapi_exposed_filters_view_preprocess_filters($vars);
     $vars['exposed'] = drupal_render($vars['exposed']);
@@ -74,7 +72,6 @@ function facetapi_exposed_filters_process_eva_display_entity_view(&$vars) {
  * Preprocesses the filters and adds them to the exposed form.
  */
 function facetapi_exposed_filters_view_preprocess_filters(&$vars) {
-  $view = $vars['view'];
   // Add Filters.
   $filter_list = $vars['exposed']['#facet_filters']['#ids'];
   $block_render = facetapi_exposed_filters_view_filter_blocks($filter_list);
