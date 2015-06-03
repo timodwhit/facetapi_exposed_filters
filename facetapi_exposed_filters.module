@@ -54,7 +54,6 @@ function _facetapi_exposed_filters_param_from_array(&$form, $root_key, $key, $va
 function facetapi_exposed_filters_preprocess_views_view(&$vars) {
   if (is_array($vars['exposed']) && !empty($vars['exposed']['#facet_filters'])) {
     facetapi_exposed_filters_view_preprocess_filters($vars);
-    $vars['exposed'] = drupal_render($vars['exposed']);
   }
 }
 
@@ -64,7 +63,6 @@ function facetapi_exposed_filters_preprocess_views_view(&$vars) {
 function facetapi_exposed_filters_process_eva_display_entity_view(&$vars) {
   if (is_array($vars['exposed']) && !empty($vars['exposed']['#facet_filters'])) {
     facetapi_exposed_filters_view_preprocess_filters($vars);
-    $vars['exposed'] = drupal_render($vars['exposed']);
   }
 }
 
@@ -89,6 +87,13 @@ function facetapi_exposed_filters_view_preprocess_filters(&$vars) {
       unset($vars['exposed'][$id]);
       unset($vars['exposed']['#info'][$id]);
     }
+  }
+  // Send it as a render array if needed.
+  if ($vars['exposed']['#facetapi_exposed_filters_render']) {;
+    $vars['exposed'] = $vars['exposed'];
+  }
+  else {
+    $vars['exposed'] = drupal_render($vars['exposed']);
   }
 }
 
