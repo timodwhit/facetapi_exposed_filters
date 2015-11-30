@@ -23,17 +23,24 @@ class facetapi_exposed_filters_plugin_exposed_form extends views_plugin_exposed_
   function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     $facets = facetapi_get_block_info(array('block'));
-    $available_facets = array();
+    $i = 0;
     foreach ($facets as $facet_key => $facet ) {
-      $available_facets[$facet_key] = $facet['info'];
+      $form['facetapi_exposed_filters_facets'][$facet_key][$facet_key] = array(
+        '#type' => 'checkbox',
+        '#title' => t($facet['info']),
+      );
+      if ($this->options['facetapi_exposed_filters_facets'][$facet_key][$facet_key] != 0) {
+        $form['facetapi_exposed_filters_facets'][$facet_key][$facet_key]['#default_value'] = 1;
+      }
+      $i++;
+      $form['facetapi_exposed_filters_facets'][$facet_key]['weight'][$facet_key] = array(
+        '#type' => 'weight',
+        '#title' => t('Weight'),
+        '#default_value' => $this->options['facetapi_exposed_filters_facets'][$facet_key]['weight'][$facet_key],
+        '#delta' => 10,
+      );
+      $i++;
     }
-    $form['facetapi_exposed_filters_facets'] = array(
-      '#type' => 'checkboxes',
-      '#options' => $available_facets,
-      '#title' => t('Facet blocks to include in the exposed form.'),
-      '#default_value' => $this->options['facetapi_exposed_filters_facets'],
-    );
-
     $form['facetapi_exposed_filters_render'] = array(
       '#type' => 'checkbox',
       '#title' => t('Send the form as a render array.'),
@@ -50,18 +57,23 @@ class facetapi_exposed_filters_plugin_exposed_form extends views_plugin_exposed_
         '#type' => 'hidden',
         '#ids' => array(),
       );
+      $sort_array = array();
       foreach ($this->options['facetapi_exposed_filters_facets'] as $facet) {
-        if (!empty($facet)) {
-          $id = 'facet_filter_' . $facet;
+        reset($facet);
+        $facet_id = key($facet);
+        if (!empty($facet[$facet_id])) {
+          $sort_array[] = $facet['weight'][$facet_id];
+          $id = 'facet_filter_' . $facet_id;
           $form[$id] = array();
-          $form[$id]['#facet_id'] = $facet;
+          $form[$id]['#facet_id'] = $facet_id;
           $form[$id]['#id'] = 'edit-' . $id;
           // // Pass information to the #info for use in template_views_
           $form['#info'][$id] = array();
           $form['#info'][$id]['value'] = $id;
-          $form['#facet_filters']['#ids'][] = $facet;
+          $form['#facet_filters']['#ids'][] = $facet_id;
         }
       }
+      array_multisort($sort_array, $form['#info']);
     }
     // Set whether or not to send the form as a render array or html.
     $form['#facetapi_exposed_filters_render'] = FALSE;
