@@ -73,6 +73,23 @@ class facetapi_exposed_filters_plugin_exposed_form extends views_plugin_exposed_
           $form['#facet_filters']['#ids'][] = $facet_id;
         }
       }
+      // Have to pad sorting array if there are
+      // other filters present.
+      $facets_position_set = FALSE;
+      $facets_position = 0;
+      foreach ($form['#info'] as $key => $value) {
+        if (strpos($key, 'facet_filter_') !== FALSE) {
+          $facets_position_set = TRUE;
+        }
+        if (!$facets_position_set) {
+          $facets_position++;
+        }
+      }
+      $i = 0;
+      while ($i < $facets_position) {
+        array_unshift($sort_array, $facets_position - $i); 
+        $i++;
+      }
       array_multisort($sort_array, $form['#info']);
     }
     // Set whether or not to send the form as a render array or html.
